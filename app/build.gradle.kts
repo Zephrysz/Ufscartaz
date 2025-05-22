@@ -1,9 +1,22 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("kotlin-kapt")
 }
+
+val properties = Properties()
+val propertiesFile = project.rootProject.file("local.properties")
+
+if (propertiesFile.exists()) {
+    properties.load(propertiesFile.inputStream())
+} else {
+    println("ERRO: O arquivo local.properties com a Pexel API key nao foi encontrado!")
+}
+
+val pexelsApiKey = properties.getProperty("pexelsApiKey")
 
 android {
     namespace = "com.ufscar.ufscartaz"
@@ -17,6 +30,12 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        if (pexelsApiKey != null && pexelsApiKey.isNotBlank()) {
+            buildConfigField("String", "PEXELS_API_KEY", "\"$pexelsApiKey\"")
+        } else {
+            println("ERRO: PEXELS_API_KEY nao foi encontrada em local.properties!")
+            buildConfigField("String", "PEXELS_API_KEY", "\"\"") // Example: set to empty string
+        }
     }
 
     buildTypes {
@@ -37,6 +56,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
