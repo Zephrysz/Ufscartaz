@@ -43,8 +43,8 @@ fun AvatarSelectionScreen(
             is AvatarViewModel.AvatarState.Success -> {
                 isLoading = false
                 errorMessage = null
-                // Navigate to home screen
-                navController.navigate(AppDestinations.HOME) {
+                // Navigate to movies screen
+                navController.navigate(AppDestinations.MOVIES) {
                     popUpTo(AppDestinations.AVATAR_SELECTION) { inclusive = true }
                 }
                 // Reset state
@@ -141,7 +141,7 @@ fun AvatarSelectionScreen(
             
             // Skip button (outlined)
             OutlinedButton(
-                onClick = { navController.navigate(AppDestinations.HOME) },
+                onClick = { navController.navigate(AppDestinations.MOVIES) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),

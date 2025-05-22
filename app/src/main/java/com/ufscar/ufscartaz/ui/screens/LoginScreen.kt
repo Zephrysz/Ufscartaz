@@ -51,8 +51,8 @@ fun LoginScreen(
             is AuthViewModel.LoginState.Success -> {
                 isLoading = false
                 errorMessage = null
-                // Navigate to home screen
-                navController.navigate(AppDestinations.HOME) {
+                // Navigate to movies screen
+                navController.navigate(AppDestinations.MOVIES) {
                     popUpTo(AppDestinations.LOGIN) { inclusive = true }
                 }
                 // Reset state
