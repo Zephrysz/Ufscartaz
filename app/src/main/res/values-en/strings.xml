@@ -22,11 +22,16 @@
     <string name="button_skip">Skip</string>
     <string name="label_avatar">Label</string>
     <string name="button_continue">Continue</string>
+    <string name="avatar_selection_placeholder">Avatar selection options would go here</string>
 
     <!-- Home Screen -->
     <string name="home_greeting">For you, %s</string>
     <string name="category_documentaries">Documentaries</string>
     <string name="category_comedy">Comedy</string>
     <string name="category_drama">Drama</string>
-    <!-- ... more categories -->
+    <string name="explore_movies">Explore Movies</string>
+    
+    <!-- Movie List Screen -->
+    <string name="movies_title">Movies</string>
+    <string name="movie_list_content">Movie List</string>
 </resources>

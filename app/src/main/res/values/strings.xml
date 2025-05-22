@@ -22,11 +22,16 @@
     <string name="button_skip">Pular</string>
     <string name="label_avatar">Label</string> <!-- Or meaningful names -->
     <string name="button_continue">Continuar</string>
+    <string name="avatar_selection_placeholder">Opções de avatar apareceriam aqui</string>
 
     <!-- Home Screen -->
     <string name="home_greeting">Para você, %s</string> <!-- %s will be replaced by username -->
     <string name="category_documentaries">Documentários</string>
     <string name="category_comedy">Comédia</string>
     <string name="category_drama">Drama</string>
-    <!-- ... more categories -->
+    <string name="explore_movies">Explorar Filmes</string>
+    
+    <!-- Movie List Screen -->
+    <string name="movies_title">Filmes</string>
+    <string name="movie_list_content">Lista de Filmes</string>
 </resources>

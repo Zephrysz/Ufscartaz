@@ -1,19 +1,33 @@
 package com.ufscar.ufscartaz.ui.screens // Ensure this matches your project structure
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button // Or Material2 Button if you're using older Material
-import androidx.compose.material3.OutlinedTextField // Or Material2 OutlinedTextField
-import androidx.compose.material3.Text // Or Material2 Text
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview // For previewing
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel // Helper to get ViewModel
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController // Needed for the Preview
+import androidx.navigation.compose.rememberNavController
+import com.ufscar.ufscartaz.R
 import com.ufscar.ufscartaz.navigation.AppDestinations
-import com.ufscar.ufscartaz.ui.theme.UfscartazTheme // Assuming you have a theme
 //import com.ufscar.ufscartaz.viewmodels.AuthViewModel // Import your AuthViewModel
 
 // This is your @Composable function representing the Login screen
@@ -22,51 +36,114 @@ fun LoginScreen(navController: NavHostController) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+            .background(Color.Black),
+        contentAlignment = Alignment.Center
     ) {
-        Text(text = "Hello World - Login Screen")
-        
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Email") },
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp)
-        )
-        
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Password") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-        )
-        
-        Button(
-            onClick = { navController.navigate(AppDestinations.HOME) {
-                popUpTo(AppDestinations.LOGIN) { inclusive = true }
-            }},
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp)
+                .padding(horizontal = 24.dp)
         ) {
-            Text("Login")
+            // Logo text with UFSCAR and TAZ parts
+            val logoText = buildAnnotatedString {
+                withStyle(style = SpanStyle(
+                    color = Color.Red,
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold
+                )) {
+                    append(stringResource(R.string.logo_part1))
+                }
+                withStyle(style = SpanStyle(
+                    color = Color.Red,
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold
+                )) {
+                    append(stringResource(R.string.logo_part2))
+                }
+            }
+            
+            Text(text = logoText)
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // Welcome back text
+            Text(
+                text = stringResource(R.string.auth_welcome_back),
+                color = Color.White,
+                fontSize = 16.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(bottom = 24.dp)
+            )
+            
+            // Email field
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text(stringResource(R.string.label_email), color = Color.Gray) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedTextColor = Color.White,
+                    focusedTextColor = Color.White,
+                    unfocusedBorderColor = Color.Gray,
+                    focusedBorderColor = Color.White
+                )
+            )
+            
+            // Password field
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text(stringResource(R.string.label_password), color = Color.Gray) },
+                visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedTextColor = Color.White,
+                    focusedTextColor = Color.White,
+                    unfocusedBorderColor = Color.Gray,
+                    focusedBorderColor = Color.White
+                )
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // Login button
+            Button(
+                onClick = { 
+                    navController.navigate(AppDestinations.HOME) {
+                        popUpTo(AppDestinations.LOGIN) { inclusive = true }
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(4.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Red
+                )
+            ) {
+                Text(
+                    text = stringResource(R.string.button_login),
+                    fontSize = 16.sp,
+                    color = Color.White
+                )
+            }
         }
     }
 }
 
-// --- Preview Function ---
-// This allows you to see the Composable in the Android Studio Preview pane
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
-    // Wrap your preview in your app's theme
     LoginScreen(navController = rememberNavController())
 }
