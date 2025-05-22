@@ -145,13 +145,17 @@ fun MovieListScreen(
                                 .fillMaxWidth()
                                 .focusRequester(focusRequester),
                             placeholder = { Text(stringResource(R.string.search_placeholder)) },
-                            colors = TextFieldDefaults.textFieldColors(
-                                containerColor = Color(0xFF1D1D1D),
-                                textColor = Color.White,
-                                cursorColor = Color.White,
-                                placeholderColor = Color.Gray,
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color(0xFF1D1D1D),
+                                unfocusedContainerColor = Color(0xFF1D1D1D),
+                                disabledContainerColor = Color(0xFF1D1D1D),
+                                focusedTextColor = Color.White,
+                                unfocusedTextColor = Color.White,
+                                focusedPlaceholderColor = Color.Gray,
+                                unfocusedPlaceholderColor = Color.Gray,
+                                focusedIndicatorColor = Color.Transparent,
                                 unfocusedIndicatorColor = Color.Transparent,
-                                focusedIndicatorColor = Color.Transparent
+                                cursorColor = Color.White
                             ),
                             shape = RoundedCornerShape(8.dp),
                             singleLine = true,
