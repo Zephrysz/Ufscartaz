@@ -31,6 +31,7 @@ import com.ufscar.ufscartaz.data.model.Movie
 import com.ufscar.ufscartaz.data.model.isGenre
 import com.ufscar.ufscartaz.data.model.getGenreNames
 import com.ufscar.ufscartaz.ui.viewmodels.MovieViewModel
+import androidx.compose.foundation.BorderStroke
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
