@@ -31,12 +31,21 @@ class MovieViewModel : ViewModel() {
             _error.value = null
             
             try {
-                _movies.value = repository.getPopularMovies()
+                val movieList = repository.getPopularMovies()
+                if (movieList.isEmpty()) {
+                    _error.value = "Não foram encontrados filmes. Verifique sua conexão."
+                } else {
+                    _movies.value = movieList
+                }
             } catch (e: Exception) {
-                _error.value = e.message ?: "Erro desconhecido ao carregar os filmes"
+                _error.value = "Erro ao carregar filmes: ${e.message ?: "Erro desconhecido"}"
             } finally {
                 _isLoading.value = false
             }
         }
+    }
+    
+    fun retryLoading() {
+        loadPopularMovies()
     }
 } 
