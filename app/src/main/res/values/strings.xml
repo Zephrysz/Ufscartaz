@@ -29,9 +29,24 @@
     <string name="category_documentaries">Documentários</string>
     <string name="category_comedy">Comédia</string>
     <string name="category_drama">Drama</string>
+    <string name="category_action">Ação</string>
+    <string name="category_adventure">Aventura</string>
+    <string name="category_horror">Terror</string>
+    <string name="category_scifi">Ficção Científica</string>
+    <string name="category_romance">Romance</string>
+    <string name="category_animation">Animação</string>
     <string name="explore_movies">Explorar Filmes</string>
     
     <!-- Movie List Screen -->
     <string name="movies_title">Filmes</string>
     <string name="movie_list_content">Lista de Filmes</string>
+    <string name="all_movies">Todos os Filmes</string>
+    <string name="popular_movies">Filmes Populares</string>
+    <string name="search_hint">Buscar filmes...</string>
+    <string name="search_placeholder">O que você quer assistir?</string>
+    <string name="no_movies_found">Nenhum filme encontrado</string>
+    <string name="try_again">Tentar novamente</string>
+    <string name="unknown_error">Erro desconhecido</string>
+    <string name="no_movies_in_category">Nenhum filme encontrado nesta categoria</string>
+    <string name="movies">Filmes</string>
 </resources>
