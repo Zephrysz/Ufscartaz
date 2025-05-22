@@ -1,18 +1,18 @@
-package com.your_app_name
+package com.ufscar.ufscartaz
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.rememberNavController
-import com.your_app_name.navigation.AppNavHost // Import your navigation composable
-import com.your_app_name.ui.theme.YourAppTheme // Your app's theme
+import com.ufscar.ufscartaz.navigation.AppNavHost // Import your navigation composable
+import com.ufscar.ufscartaz.ui.theme.UfscartazTheme // Your app's theme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            YourAppTheme {
+            UfscartazTheme {
                 App()
             }
         }
