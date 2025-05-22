@@ -43,6 +43,12 @@ import com.ufscar.ufscartaz.data.model.Movie
 import com.ufscar.ufscartaz.data.model.isGenre
 import com.ufscar.ufscartaz.data.model.getGenreNames
 import com.ufscar.ufscartaz.ui.viewmodels.MovieViewModel
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -118,7 +124,7 @@ fun MovieListScreen(
                     // Ícone de pesquisa que ativa o campo de busca
                     if (!isSearchActive) {
                         IconButton(onClick = { 
-                            viewModel.setSearchQuery("")
+                            viewModel.toggleSearchActive()
                         }) {
                             Icon(
                                 imageVector = Icons.Default.Search,
@@ -131,7 +137,11 @@ fun MovieListScreen(
                 }
                 
                 // Campo de busca (visível apenas quando ativo)
-                if (isSearchActive) {
+                AnimatedVisibility(
+                    visible = isSearchActive,
+                    enter = fadeIn() + expandVertically(),
+                    exit = fadeOut() + shrinkVertically()
+                ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -160,11 +170,13 @@ fun MovieListScreen(
                             shape = RoundedCornerShape(8.dp),
                             singleLine = true,
                             leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Default.Search,
-                                    contentDescription = null,
-                                    tint = Color.White
-                                )
+                                IconButton(onClick = { viewModel.toggleSearchActive() }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Search,
+                                        contentDescription = null,
+                                        tint = Color.White
+                                    )
+                                }
                             },
                             trailingIcon = {
                                 if (searchQuery.isNotEmpty()) {
@@ -184,8 +196,12 @@ fun MovieListScreen(
                         )
                     }
                     
-                    LaunchedEffect(Unit) {
-                        focusRequester.requestFocus()
+                    LaunchedEffect(isSearchActive) {
+                        if (isSearchActive) {
+                            // Pequeno atraso para garantir que a UI esteja visível antes de solicitar o foco
+                            kotlinx.coroutines.delay(100)
+                            focusRequester.requestFocus()
+                        }
                     }
                 }
             }
@@ -232,8 +248,33 @@ fun MovieListScreen(
                     }
                 }
                 isSearchActive -> {
-                    // Exibe os resultados da pesquisa
-                    if (filteredMovies.isEmpty() && searchQuery.isNotEmpty()) {
+                    if (searchQuery.isEmpty()) {
+                        // Se a busca está ativa mas não há query
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = null,
+                                tint = Color.Gray,
+                                modifier = Modifier.size(48.dp)
+                            )
+                            
+                            Spacer(modifier = Modifier.height(16.dp))
+                            
+                            Text(
+                                text = stringResource(R.string.search_type_to_search),
+                                color = Color.Gray,
+                                fontSize = 16.sp,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    } else if (filteredMovies.isEmpty()) {
+                        // Se há query mas não há resultados
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -242,18 +283,20 @@ fun MovieListScreen(
                             verticalArrangement = Arrangement.Center
                         ) {
                             Text(
-                                text = stringResource(R.string.no_movies_found),
+                                text = stringResource(R.string.search_no_results, searchQuery),
                                 color = Color.White,
-                                fontSize = 16.sp
+                                fontSize = 16.sp,
+                                textAlign = TextAlign.Center
                             )
                         }
-                    } else if (searchQuery.isNotEmpty()) {
+                    } else {
+                        // Exibe os resultados da pesquisa
                         LazyColumn(
                             modifier = Modifier.fillMaxSize()
                         ) {
                             item {
                                 Text(
-                                    text = "Resultados para: \"$searchQuery\"",
+                                    text = stringResource(R.string.search_results_for, searchQuery),
                                     color = Color.White,
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold,
@@ -263,6 +306,11 @@ fun MovieListScreen(
                             
                             items(filteredMovies) { movie ->
                                 SearchResultItem(movie = movie)
+                            }
+                            
+                            // Espaçamento inferior
+                            item {
+                                Spacer(modifier = Modifier.height(16.dp))
                             }
                         }
                     }

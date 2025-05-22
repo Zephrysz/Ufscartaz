@@ -49,4 +49,7 @@
     <string name="unknown_error">Erro desconhecido</string>
     <string name="no_movies_in_category">Nenhum filme encontrado nesta categoria</string>
     <string name="movies">Filmes</string>
+    <string name="search_results_for">Resultados para: \"%s\"</string>
+    <string name="search_no_results">Nenhum filme encontrado para \"%s\"</string>
+    <string name="search_type_to_search">Digite para pesquisar filmes</string>
 </resources>

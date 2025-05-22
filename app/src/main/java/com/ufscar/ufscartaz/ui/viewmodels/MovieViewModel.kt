@@ -4,9 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ufscar.ufscartaz.data.model.Movie
 import com.ufscar.ufscartaz.data.repository.MovieRepository
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 
 class MovieViewModel : ViewModel() {
@@ -32,6 +34,21 @@ class MovieViewModel : ViewModel() {
     
     init {
         loadPopularMovies()
+        setupSearchDebounce()
+    }
+    
+    @OptIn(FlowPreview::class)
+    private fun setupSearchDebounce() {
+        viewModelScope.launch {
+            // Debounce a pesquisa para evitar muitas atualizações rápidas
+            _searchQuery
+                .debounce(300) // 300ms de atraso para melhor desempenho
+                .collect { query ->
+                    if (query.isNotEmpty()) {
+                        updateFilteredMovies()
+                    }
+                }
+        }
     }
     
     fun loadPopularMovies() {
@@ -65,13 +82,25 @@ class MovieViewModel : ViewModel() {
     fun setSearchQuery(query: String) {
         _searchQuery.value = query
         _isSearchActive.value = query.isNotEmpty()
-        updateFilteredMovies()
+        
+        // Se a query estiver vazia, limpa os resultados imediatamente
+        if (query.isEmpty()) {
+            _filteredMovies.value = emptyList()
+        }
+        // Caso contrário, o debounce cuidará da atualização
     }
     
     fun clearSearch() {
         _searchQuery.value = ""
         _isSearchActive.value = false
         _filteredMovies.value = emptyList()
+    }
+    
+    fun toggleSearchActive() {
+        _isSearchActive.value = !_isSearchActive.value
+        if (!_isSearchActive.value) {
+            clearSearch()
+        }
     }
     
     private fun updateFilteredMovies() {
@@ -81,10 +110,25 @@ class MovieViewModel : ViewModel() {
             return
         }
         
-        _filteredMovies.value = _movies.value.filter { movie ->
-            movie.title.lowercase().contains(query) || 
-            movie.overview.lowercase().contains(query)
+        // Pesquisa por título com prioridade (match exato)
+        val exactMatches = _movies.value.filter { movie ->
+            movie.title.lowercase() == query
         }
+        
+        // Pesquisa por título com correspondência parcial
+        val titleMatches = _movies.value.filter { movie ->
+            movie.title.lowercase().contains(query) && !exactMatches.contains(movie)
+        }
+        
+        // Pesquisa por descrição se necessário
+        val descriptionMatches = _movies.value.filter { movie ->
+            movie.overview.lowercase().contains(query) && 
+            !exactMatches.contains(movie) && 
+            !titleMatches.contains(movie)
+        }
+        
+        // Combina os resultados com prioridade para títulos
+        _filteredMovies.value = exactMatches + titleMatches + descriptionMatches
     }
     
     fun getMoviesByGenre(genreId: Int): List<Movie> {
