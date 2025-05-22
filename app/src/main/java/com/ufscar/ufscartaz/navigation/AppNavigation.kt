@@ -1,19 +1,16 @@
 package com.ufscar.ufscartaz.navigation
 
-import android.window.SplashScreen
-
-package com.your_app_name.navigation
-
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.your_app_name.ui.screens.AvatarSelectionScreen
-import com.your_app_name.ui.screens.HomeScreen
-import com.your_app_name.ui.screens.LoginScreen
-import com.your_app_name.ui.screens.RegistrationScreen
-import com.your_app_name.ui.screens.SplashScreen
-import com.your_app_name.ui.screens.WelcomeScreen
+import com.ufscar.ufscartaz.ui.screens.AvatarSelectionScreen
+import com.ufscar.ufscartaz.ui.screens.HomeScreen
+import com.ufscar.ufscartaz.ui.screens.LoginScreen
+import com.ufscar.ufscartaz.ui.screens.RegistrationScreen
+import com.ufscar.ufscartaz.ui.screens.SplashScreen
+import com.ufscar.ufscartaz.ui.screens.WelcomeScreen
+import com.ufscar.ufscartaz.ui.screens.MovieListScreen
 
 object AppDestinations {
     const val SPLASH = "splash"
@@ -22,6 +19,7 @@ object AppDestinations {
     const val REGISTRATION = "registration"
     const val AVATAR_SELECTION = "avatar_selection"
     const val HOME = "home"
+    const val MOVIES = "movies" // 👈 Nova rota
 }
 
 @Composable
@@ -44,6 +42,9 @@ fun AppNavHost(navController: NavHostController) {
         }
         composable(AppDestinations.HOME) {
             HomeScreen(navController = navController)
+        }
+        composable(AppDestinations.MOVIES) {
+            MovieListScreen()
         }
     }
 }
