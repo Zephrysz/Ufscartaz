@@ -19,18 +19,27 @@ class UserRepository(
      */
     suspend fun login(email: String, password: String): ApiResponse<User> = withContext(Dispatchers.IO) {
         try {
-            val response = apiService.login(LoginRequest(email, password))
+            try {
+                val response = apiService.login(LoginRequest(email, password))
 
-            val user = User(
-                id = response.userId,
-                name = response.name,
-                email = response.email,
-                password = password,
-                avatarId = response.avatarId
-            )
-            userDao.insertUser(user)
+                val user = User(
+                    id = response.userId,
+                    name = response.name,
+                    email = response.email,
+                    password = password,
+                    avatarId = response.avatarId
+                )
+                userDao.insertUser(user)
 
-            return@withContext ApiResponse.Success(user)
+                return@withContext ApiResponse.Success(user)
+            } catch (e: Exception) {
+                val localUser = userDao.getUserByEmailAndPassword(email, password)
+                if (localUser != null) {
+                    return@withContext ApiResponse.Success(localUser)
+                } else {
+                    throw e
+                }
+            }
         } catch (e: Exception) {
             return@withContext ApiResponse.Error(e)
         }
