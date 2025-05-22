@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">UFSCARTAZ</string>
+
+    <!-- Splash Screen -->
+    <string name="logo_part1">UFSCAR</string>
+    <string name="logo_part2">TAZ</string>
+
+    <!-- Welcome Screen -->
+    <string name="welcome_subtitle">Endless entertainment, all in one place</string>
+    <string name="button_register">REGISTER</string>
+    <string name="button_login">LOGIN</string>
+
+    <!-- Auth Screens -->
+    <string name="auth_welcome_back">Welcome back!</string>
+    <string name="auth_welcome">Welcome!</string>
+    <string name="label_name">Name</string>
+    <string name="label_email">E-mail</string>
+    <string name="label_password">Password</string>
+
+    <!-- Avatar Selection -->
+    <string name="title_choose_avatar">Choose avatar</string>
+    <string name="button_skip">Skip</string>
+    <string name="label_avatar">Label</string>
+    <string name="button_continue">Continue</string>
+
+    <!-- Home Screen -->
+    <string name="home_greeting">For you, %s</string>
+    <string name="category_documentaries">Documentaries</string>
+    <string name="category_comedy">Comedy</string>
+    <string name="category_drama">Drama</string>
+    <!-- ... more categories -->
+</resources>
