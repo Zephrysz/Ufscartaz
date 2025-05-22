@@ -4,11 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,19 +17,56 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.ufscar.ufscartaz.R
 import com.ufscar.ufscartaz.navigation.AppDestinations
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.compose.rememberNavController
+import com.ufscar.ufscartaz.ui.viewmodels.AuthViewModel
 
 @Composable
-fun RegistrationScreen(navController: NavHostController) {
+fun RegistrationScreen(
+    navController: NavHostController,
+    viewModel: AuthViewModel = viewModel()
+) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    
+    // Observe registration state
+    val registerState by viewModel.registerState.collectAsState()
+    
+    // Handle registration state changes
+    LaunchedEffect(registerState) {
+        when (registerState) {
+            is AuthViewModel.RegisterState.Loading -> {
+                isLoading = true
+                errorMessage = null
+            }
+            is AuthViewModel.RegisterState.Success -> {
+                isLoading = false
+                errorMessage = null
+                // Navigate to avatar selection screen
+                navController.navigate(AppDestinations.AVATAR_SELECTION) {
+                    popUpTo(AppDestinations.REGISTRATION) { inclusive = true }
+                }
+                // Reset state
+                viewModel.resetRegisterState()
+            }
+            is AuthViewModel.RegisterState.Error -> {
+                isLoading = false
+                errorMessage = (registerState as AuthViewModel.RegisterState.Error).message
+            }
+            else -> {
+                isLoading = false
+            }
+        }
+    }
     
     Box(
         modifier = Modifier
@@ -78,6 +111,17 @@ fun RegistrationScreen(navController: NavHostController) {
                 modifier = Modifier.padding(bottom = 24.dp)
             )
             
+            // Error message
+            if (errorMessage != null) {
+                Text(
+                    text = errorMessage ?: "",
+                    color = Color.Red,
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+            }
+            
             // Name field
             OutlinedTextField(
                 value = name,
@@ -93,7 +137,8 @@ fun RegistrationScreen(navController: NavHostController) {
                     focusedTextColor = Color.White,
                     unfocusedBorderColor = Color.Gray,
                     focusedBorderColor = Color.White
-                )
+                ),
+                enabled = !isLoading
             )
             
             // Email field
@@ -111,7 +156,9 @@ fun RegistrationScreen(navController: NavHostController) {
                     focusedTextColor = Color.White,
                     unfocusedBorderColor = Color.Gray,
                     focusedBorderColor = Color.White
-                )
+                ),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                enabled = !isLoading
             )
             
             // Password field
@@ -131,25 +178,36 @@ fun RegistrationScreen(navController: NavHostController) {
                     focusedTextColor = Color.White,
                     unfocusedBorderColor = Color.Gray,
                     focusedBorderColor = Color.White
-                )
+                ),
+                enabled = !isLoading
             )
             
             Spacer(modifier = Modifier.height(16.dp))
             
             // Register button
             Button(
-                onClick = { navController.navigate(AppDestinations.AVATAR_SELECTION) },
+                onClick = { viewModel.register(name, email, password) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(4.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Red
-                )
+                    containerColor = Color.Red,
+                    disabledContainerColor = Color.Gray
+                ),
+                enabled = !isLoading && name.isNotBlank() && email.isNotBlank() && password.isNotBlank()
             ) {
-                Text(
-                    text = stringResource(R.string.button_register),
-                    fontSize = 16.sp,
-                    color = Color.White
-                )
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text(
+                        text = stringResource(R.string.button_register),
+                        fontSize = 16.sp,
+                        color = Color.White
+                    )
+                }
             }
         }
     }

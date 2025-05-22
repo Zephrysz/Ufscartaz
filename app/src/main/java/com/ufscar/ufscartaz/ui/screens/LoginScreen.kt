@@ -4,11 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,17 +20,53 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.ufscar.ufscartaz.R
 import com.ufscar.ufscartaz.navigation.AppDestinations
-//import com.ufscar.ufscartaz.viewmodels.AuthViewModel // Import your AuthViewModel
+import com.ufscar.ufscartaz.ui.viewmodels.AuthViewModel
 
 // This is your @Composable function representing the Login screen
 @Composable
-fun LoginScreen(navController: NavHostController) {
+fun LoginScreen(
+    navController: NavHostController,
+    viewModel: AuthViewModel = viewModel()
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    
+    // Observe login state
+    val loginState by viewModel.loginState.collectAsState()
+    
+    // Handle login state changes
+    LaunchedEffect(loginState) {
+        when (loginState) {
+            is AuthViewModel.LoginState.Loading -> {
+                isLoading = true
+                errorMessage = null
+            }
+            is AuthViewModel.LoginState.Success -> {
+                isLoading = false
+                errorMessage = null
+                // Navigate to home screen
+                navController.navigate(AppDestinations.HOME) {
+                    popUpTo(AppDestinations.LOGIN) { inclusive = true }
+                }
+                // Reset state
+                viewModel.resetLoginState()
+            }
+            is AuthViewModel.LoginState.Error -> {
+                isLoading = false
+                errorMessage = (loginState as AuthViewModel.LoginState.Error).message
+            }
+            else -> {
+                isLoading = false
+            }
+        }
+    }
     
     Box(
         modifier = Modifier
@@ -79,6 +111,17 @@ fun LoginScreen(navController: NavHostController) {
                 modifier = Modifier.padding(bottom = 24.dp)
             )
             
+            // Error message
+            if (errorMessage != null) {
+                Text(
+                    text = errorMessage ?: "",
+                    color = Color.Red,
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+            }
+            
             // Email field
             OutlinedTextField(
                 value = email,
@@ -94,7 +137,9 @@ fun LoginScreen(navController: NavHostController) {
                     focusedTextColor = Color.White,
                     unfocusedBorderColor = Color.Gray,
                     focusedBorderColor = Color.White
-                )
+                ),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                enabled = !isLoading
             )
             
             // Password field
@@ -114,29 +159,36 @@ fun LoginScreen(navController: NavHostController) {
                     focusedTextColor = Color.White,
                     unfocusedBorderColor = Color.Gray,
                     focusedBorderColor = Color.White
-                )
+                ),
+                enabled = !isLoading
             )
             
             Spacer(modifier = Modifier.height(16.dp))
             
             // Login button
             Button(
-                onClick = { 
-                    navController.navigate(AppDestinations.HOME) {
-                        popUpTo(AppDestinations.LOGIN) { inclusive = true }
-                    }
-                },
+                onClick = { viewModel.login(email, password) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(4.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Red
-                )
+                    containerColor = Color.Red,
+                    disabledContainerColor = Color.Gray
+                ),
+                enabled = !isLoading && email.isNotBlank() && password.isNotBlank()
             ) {
-                Text(
-                    text = stringResource(R.string.button_login),
-                    fontSize = 16.sp,
-                    color = Color.White
-                )
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text(
+                        text = stringResource(R.string.button_login),
+                        fontSize = 16.sp,
+                        color = Color.White
+                    )
+                }
             }
         }
     }
