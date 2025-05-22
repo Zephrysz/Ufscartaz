@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.ufscar.ufscartaz.data.UserSession
 import com.ufscar.ufscartaz.data.local.AppDatabase
 import com.ufscar.ufscartaz.data.remote.ApiResponse
+import com.ufscar.ufscartaz.data.remote.Avatar
 import com.ufscar.ufscartaz.data.repository.UserRepository
 import com.ufscar.ufscartaz.di.NetworkModule
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,68 +19,115 @@ import kotlinx.coroutines.launch
  */
 class AvatarViewModel(application: Application) : AndroidViewModel(application) {
     private val userRepository: UserRepository
-    
-    private val _avatarState = MutableStateFlow<AvatarState>(AvatarState.Idle)
-    val avatarState: StateFlow<AvatarState> = _avatarState.asStateFlow()
-    
-    private val _selectedAvatarId = MutableStateFlow(0)
-    val selectedAvatarId: StateFlow<Int> = _selectedAvatarId.asStateFlow()
-    
+
+    private val _avatarList = MutableStateFlow<List<Avatar>>(emptyList())
+    val avatarList: StateFlow<List<Avatar>> = _avatarList.asStateFlow()
+
+    private val _isLoadingAvatars = MutableStateFlow(false)
+    val isLoadingAvatars: StateFlow<Boolean> = _isLoadingAvatars.asStateFlow()
+
+    private val _fetchAvatarsError = MutableStateFlow<String?>(null)
+    val fetchAvatarsError: StateFlow<String?> = _fetchAvatarsError.asStateFlow()
+
+    // State for the currently selected avatar (using Pexels ID for identification)
+    private val _selectedAvatarPexelsId = MutableStateFlow<Int?>(null)
+    val selectedAvatarPexelsId: StateFlow<Int?> = _selectedAvatarPexelsId.asStateFlow()
+
+    // State for the selected avatar URL (useful for displaying selection indicator)
+    private val _selectedAvatarUrl = MutableStateFlow<String?>(null)
+    val selectedAvatarUrl: StateFlow<String?> = _selectedAvatarUrl.asStateFlow()
+
+    private val _saveAvatarState = MutableStateFlow<SaveAvatarState>(SaveAvatarState.Idle)
+    val saveAvatarState: StateFlow<SaveAvatarState> = _saveAvatarState.asStateFlow()
+
     init {
         val userDao = AppDatabase.getDatabase(application).userDao()
-        val apiService = NetworkModule.provideApiService()
-        userRepository = UserRepository(userDao, apiService)
-        
+        val apiService = NetworkModule.provideApiService() // Get your existing API service
+        val pexelsApiService = NetworkModule.providePexelsApiService() // Get Pexels service
+        userRepository = UserRepository(userDao, apiService, pexelsApiService) // Pass both services
+
+        // Restore selected avatar if user already has one from UserSession
         UserSession.currentUser.value?.let {
-            _selectedAvatarId.value = it.avatarId
+            // Read from the new fields
+            _selectedAvatarPexelsId.value = it.avatarPexelsId
+            _selectedAvatarUrl.value = it.avatarUrl
         }
+
+        // Fetch avatars when ViewModel is created
+        fetchAvatars()
     }
-    
-    /**
-     * Select an avatar
-     */
-    fun selectAvatar(avatarId: Int) {
-        _selectedAvatarId.value = avatarId
-    }
-    
-    /**
-     * Save the selected avatar
-     */
-    fun saveAvatar() {
-        _avatarState.value = AvatarState.Loading
-        
+
+    private fun fetchAvatars() {
+        _isLoadingAvatars.value = true
+        _fetchAvatarsError.value = null
+
         viewModelScope.launch {
-            val currentUser = UserSession.currentUser.value
-            if (currentUser != null) {
-                when (val response = userRepository.updateAvatar(currentUser.id, _selectedAvatarId.value)) {
-                    is ApiResponse.Success -> {
-                        UserSession.updateAvatar(_selectedAvatarId.value)
-                        _avatarState.value = AvatarState.Success
-                    }
-                    is ApiResponse.Error -> {
-                        _avatarState.value = AvatarState.Error(response.exception.message ?: "Unknown error")
-                    }
+            when (val response = userRepository.fetchAvatars()) {
+                is ApiResponse.Success -> {
+                    _avatarList.value = response.data
+                    _isLoadingAvatars.value = false
                 }
-            } else {
-                _avatarState.value = AvatarState.Error("No user logged in")
+                is ApiResponse.Error -> {
+                    _avatarList.value = emptyList()
+                    _isLoadingAvatars.value = false
+                    _fetchAvatarsError.value = response.exception.message ?: "Failed to fetch avatars"
+                }
             }
         }
     }
-    
-    /**
-     * Reset avatar state
-     */
-    fun resetAvatarState() {
-        _avatarState.value = AvatarState.Idle
+
+    fun selectAvatar(avatar: Avatar) {
+        _selectedAvatarPexelsId.value = avatar.pexelsId
+        _selectedAvatarUrl.value = avatar.url
     }
-    
-    /**
-     * Avatar state
-     */
-    sealed class AvatarState {
-        object Idle : AvatarState()
-        object Loading : AvatarState()
-        object Success : AvatarState()
-        data class Error(val message: String) : AvatarState()
+
+    fun deselectAvatar() {
+        _selectedAvatarPexelsId.value = null
+        _selectedAvatarUrl.value = null
     }
-} 
+
+    fun saveAvatar() {
+        val selectedPexelsId = _selectedAvatarPexelsId.value
+        val selectedUrl = _selectedAvatarUrl.value
+
+        // User can technically save with null (i.e., deselecting)
+        // But if they clicked 'Continue' after fetching, something should be selected.
+        // The UI button should be disabled if nothing is selected.
+        // Let's allow saving nulls to clear the avatar if needed, but maybe the UI logic prevents this button state.
+        // Let's update the check to allow saving nulls, which effectively removes the avatar.
+        // if (selectedPexelsId == null || selectedUrl == null) { ... error logic ... }
+        // The check in the UI button enabled state is important: selectedAvatarPexelsId != null
+
+        _saveAvatarState.value = SaveAvatarState.Loading
+
+        viewModelScope.launch {
+            val currentUser = UserSession.currentUser.value
+            if (currentUser != null) {
+                // Call the correct updateAvatar method with nullable ID and URL
+                when (val response = userRepository.updateAvatar(currentUser.id, selectedPexelsId, selectedUrl)) {
+                    is ApiResponse.Success -> {
+                        // Update UserSession with the new avatar info (can be null)
+                        UserSession.updateAvatar(selectedPexelsId, selectedUrl)
+                        _saveAvatarState.value = SaveAvatarState.Success
+                    }
+                    is ApiResponse.Error -> {
+                        _saveAvatarState.value = SaveAvatarState.Error(response.exception.message ?: "Unknown error saving avatar")
+                    }
+                }
+            } else {
+                _saveAvatarState.value = SaveAvatarState.Error("No user logged in")
+            }
+        }
+    }
+
+    fun resetSaveAvatarState() {
+        _saveAvatarState.value = SaveAvatarState.Idle
+    }
+
+    sealed class SaveAvatarState {
+        object Idle : SaveAvatarState()
+        object Loading : SaveAvatarState()
+        object Success : SaveAvatarState()
+        data class Error(val message: String) : SaveAvatarState()
+    }
+}

@@ -37,8 +37,10 @@ interface UserDao {
     /**
      * Update user's avatar.
      */
-    @Query("UPDATE users SET avatarId = :avatarId WHERE id = :userId")
-    suspend fun updateUserAvatar(userId: Long, avatarId: Int)
+//    @Query("UPDATE users SET avatarId = :avatarId WHERE id = :userId")
+//    suspend fun updateUserAvatar(userId: Long, avatarId: Int)
+    @Query("UPDATE users SET avatarPexelsId = :avatarPexelsId, avatarUrl = :avatarUrl WHERE id = :userId")
+    suspend fun updateUserAvatar(userId: Long, avatarPexelsId: Int?, avatarUrl: String?)
     
     /**
      * Check if email exists.

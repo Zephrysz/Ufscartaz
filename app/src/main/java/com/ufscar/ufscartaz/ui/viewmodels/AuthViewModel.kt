@@ -28,7 +28,8 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     init {
         val userDao = AppDatabase.getDatabase(application).userDao()
         val apiService = NetworkModule.provideApiService()
-        userRepository = UserRepository(userDao, apiService)
+        val pexelsApiService = NetworkModule.providePexelsApiService() // Get the Pexels API service
+        userRepository = UserRepository(userDao, apiService, pexelsApiService)
     }
 
     /**

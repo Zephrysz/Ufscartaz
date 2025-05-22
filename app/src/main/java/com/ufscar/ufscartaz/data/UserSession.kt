@@ -23,8 +23,11 @@ object UserSession {
     }
     
     // Update user's avatar
-    fun updateAvatar(avatarId: Int) {
-        _currentUser.value = _currentUser.value?.copy(avatarId = avatarId)
+    fun updateAvatar(avatarPexelsId: Int?, avatarUrl: String?) {
+        _currentUser.value = _currentUser.value?.copy(
+            avatarPexelsId = avatarPexelsId,
+            avatarUrl = avatarUrl
+        )
     }
     
     // Check if user is logged in
