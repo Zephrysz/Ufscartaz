@@ -48,6 +48,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import com.ufscar.ufscartaz.navigation.AppDestinations
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -305,7 +306,12 @@ fun MovieListScreen(
                             }
                             
                             items(filteredMovies) { movie ->
-                                SearchResultItem(movie = movie)
+                                SearchResultItem(
+                                    movie = movie,
+                                    onMovieClick = { clickedMovieId ->
+                                        navController.navigate("${AppDestinations.MOVIE_DETAIL}/$clickedMovieId")
+                                    }
+                                )
                             }
                             
                             // Espaçamento inferior
@@ -366,7 +372,12 @@ fun MovieListScreen(
                         // Filme em destaque
                         item {
                             if (featuredMovie != null) {
-                                FeaturedMovie(movie = featuredMovie)
+                                FeaturedMovie(
+                                    movie = featuredMovie,
+                                    onMovieClick = { clickedMovieId ->
+                                        navController.navigate("${AppDestinations.MOVIE_DETAIL}/$clickedMovieId")
+                                    }
+                                )
                             }
                         }
                         
@@ -401,7 +412,12 @@ fun MovieListScreen(
                                         contentPadding = PaddingValues(horizontal = 16.dp)
                                     ) {
                                         items(filtered) { movie ->
-                                            MovieCard(movie = movie)
+                                            MovieCard(
+                                                movie = movie,
+                                                onMovieClick = { clickedMovieId ->
+                                                    navController.navigate("${AppDestinations.MOVIE_DETAIL}/$clickedMovieId")
+                                                }
+                                            )
                                         }
                                     }
                                 }
@@ -427,7 +443,12 @@ fun MovieListScreen(
                                     contentPadding = PaddingValues(horizontal = 16.dp)
                                 ) {
                                     items(movies) { movie ->
-                                        MovieCard(movie = movie)
+                                        MovieCard(
+                                            movie = movie,
+                                            onMovieClick = { clickedMovieId ->
+                                                navController.navigate("${AppDestinations.MOVIE_DETAIL}/$clickedMovieId")
+                                            }
+                                        )
                                     }
                                 }
                             }
@@ -455,7 +476,12 @@ fun MovieListScreen(
                                             contentPadding = PaddingValues(horizontal = 16.dp)
                                         ) {
                                             items(genreMovies) { movie ->
-                                                MovieCard(movie = movie)
+                                                MovieCard(
+                                                    movie = movie,
+                                                    onMovieClick = { clickedMovieId ->
+                                                        navController.navigate("${AppDestinations.MOVIE_DETAIL}/$clickedMovieId")
+                                                    }
+                                                )
                                             }
                                         }
                                     }
@@ -492,13 +518,14 @@ fun CategoryChip(
 }
 
 @Composable
-fun FeaturedMovie(movie: Movie) {
+fun FeaturedMovie(movie: Movie, onMovieClick: (Int) -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(360.dp)
             .padding(16.dp)
             .clip(RoundedCornerShape(16.dp))
+            .clickable { onMovieClick(movie.id) }
     ) {
         AsyncImage(
             model = if (movie.backdrop_path != null) 
@@ -570,11 +597,12 @@ fun FeaturedMovie(movie: Movie) {
 }
 
 @Composable
-fun MovieCard(movie: Movie) {
+fun MovieCard(movie: Movie, onMovieClick: (Int) -> Unit) {
     Card(
         modifier = Modifier
             .width(130.dp)
-            .height(200.dp),
+            .height(200.dp)
+            .clickable { onMovieClick(movie.id) },
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.Transparent
@@ -592,11 +620,12 @@ fun MovieCard(movie: Movie) {
 }
 
 @Composable
-fun SearchResultItem(movie: Movie) {
+fun SearchResultItem(movie: Movie, onMovieClick: (Int) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clickable { onMovieClick(movie.id) },
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFF1D1D1D)
         ),

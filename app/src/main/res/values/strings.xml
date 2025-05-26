@@ -52,4 +52,12 @@
     <string name="search_results_for">Resultados para: \"%s\"</string>
     <string name="search_no_results">Nenhum filme encontrado para \"%s\"</string>
     <string name="search_type_to_search">Digite para pesquisar filmes</string>
+
+    <!-- ... other strings ... -->
+    <string name="loading">Carregando...</string>
+    <string name="back">Voltar</string>
+    <string name="movie_not_found">Filme não encontrado.</string>
+    <string name="rating">Avaliação: %.1f</string>
+    <string name="overview_title">Sinopse</string>
+    <string name="no_overview_available">Sinopse não disponível.</string>
 </resources>

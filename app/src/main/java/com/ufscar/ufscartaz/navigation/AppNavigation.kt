@@ -5,6 +5,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 
+import androidx.navigation.navArgument
+import androidx.navigation.NavType
+
 // Import your actual Composable screen functions
 import com.ufscar.ufscartaz.ui.screens.AvatarSelectionScreen
 import com.ufscar.ufscartaz.ui.screens.LoginScreen
@@ -12,6 +15,8 @@ import com.ufscar.ufscartaz.ui.screens.RegistrationScreen
 import com.ufscar.ufscartaz.ui.screens.SplashScreen
 import com.ufscar.ufscartaz.ui.screens.WelcomeScreen
 import com.ufscar.ufscartaz.ui.screens.MovieListScreen
+import com.ufscar.ufscartaz.ui.screens.MovieDetailScreen
+
 
 object AppDestinations {
     const val SPLASH = "splash"
@@ -20,6 +25,10 @@ object AppDestinations {
     const val REGISTRATION = "registration"
     const val AVATAR_SELECTION = "avatar_selection"
     const val MOVIES = "movies"
+
+    const val MOVIE_DETAIL = "movie_detail"
+    const val MOVIE_DETAIL_ROUTE = "$MOVIE_DETAIL/{movieId}"
+    const val MOVIE_ID_ARG = "movieId"
 }
 
 @Composable
@@ -42,6 +51,21 @@ fun AppNavHost(navController: NavHostController) {
         }
         composable(AppDestinations.MOVIES) {
             MovieListScreen(navController = navController)
+        }
+        composable(
+            route = AppDestinations.MOVIE_DETAIL_ROUTE,
+            arguments = listOf(navArgument(AppDestinations.MOVIE_ID_ARG) { type = NavType.IntType })
+        ) { backStackEntry ->
+            // Extract the movie ID from the arguments
+            val movieId = backStackEntry.arguments?.getInt(AppDestinations.MOVIE_ID_ARG)
+            // Ensure movieId is not null (it shouldn't be with IntType but defensive)
+            if (movieId != null) {
+                MovieDetailScreen(navController = navController, movieId = movieId)
+            } else {
+                // Handle the error case, maybe navigate back or show an error message
+                // Log.e("AppNavHost", "Movie ID argument is missing!")
+                navController.popBackStack() // Simple fallback: go back
+            }
         }
     }
 }
