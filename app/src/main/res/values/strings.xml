@@ -60,4 +60,6 @@
     <string name="rating">Avaliação: %.1f</string>
     <string name="overview_title">Sinopse</string>
     <string name="no_overview_available">Sinopse não disponível.</string>
+    <string name="recently_viewed">Vistos Recentemente</string>
+
 </resources>

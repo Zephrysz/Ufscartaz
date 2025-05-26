@@ -2,18 +2,26 @@ package com.ufscar.ufscartaz.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ufscar.ufscartaz.data.model.Movie
-import com.ufscar.ufscartaz.data.repository.MovieRepository
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.launch
 
-class MovieViewModel : ViewModel() {
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel // para ter acesso ao banco de dados, instancia local, contexto, etc
+import com.ufscar.ufscartaz.data.UserSession
+import com.ufscar.ufscartaz.data.local.AppDatabase
+import com.ufscar.ufscartaz.data.model.Movie
+import com.ufscar.ufscartaz.data.model.MovieHistoryEntry
+import com.ufscar.ufscartaz.data.repository.MovieRepository
+import com.ufscar.ufscartaz.data.repository.MovieHistoryRepository
+
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import android.util.Log
+
+class MovieViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = MovieRepository()
-    
+
+    private val movieHistoryRepository: MovieHistoryRepository
+
     private val _movies = MutableStateFlow<List<Movie>>(emptyList())
     val movies: StateFlow<List<Movie>> = _movies.asStateFlow()
     
@@ -33,6 +41,11 @@ class MovieViewModel : ViewModel() {
     val isSearchActive: StateFlow<Boolean> = _isSearchActive.asStateFlow()
     
     init {
+        // Initialize the new history repository using the database instance from Application context
+        val appDatabase = AppDatabase.getDatabase(application)
+        val movieHistoryDao = appDatabase.movieHistoryDao() // Get the new DAO
+        movieHistoryRepository = MovieHistoryRepository(movieHistoryDao) // Initialize the repository
+
         loadPopularMovies()
         setupSearchDebounce()
     }
@@ -136,4 +149,70 @@ class MovieViewModel : ViewModel() {
             movie.genre_ids.contains(genreId)
         }
     }
-} 
+
+    /**
+     * Records a movie click in the history for the current user.
+     */
+    fun recordMovieClick(movieId: Int) {
+        // Get the current user's ID from the UserSession singleton
+        val userId = UserSession.currentUser.value?.id
+
+        if (userId != null) {
+            // Launch a coroutine to perform the database insert
+            viewModelScope.launch {
+                try {
+                    movieHistoryRepository.addMovieToHistory(userId, movieId)
+                    Log.d("MovieViewModel", "Recorded click for movie ID $movieId for user ID $userId")
+                } catch (e: Exception) {
+                    Log.e("MovieViewModel", "Error recording movie click history", e)
+                    // Optionally, update an error state or show a Toast
+                }
+            }
+        } else {
+            // This case shouldn't happen if the user is required to be logged in
+            Log.w("MovieViewModel", "Attempted to record movie click without a logged-in user.")
+        }
+    }
+
+    /**
+     * Exposes the history of movies for the current user as a list of Movie objects.
+     * Combines the history entries with the full movie list.
+     */
+    val currentUserHistoryMovies: StateFlow<List<Movie>> =
+        UserSession.currentUser
+            .flatMapLatest { user ->
+                if (user != null) {
+                    // Combine the user's history entries flow with the main movies list flow
+                    combine(
+                        movieHistoryRepository.getUserHistory(user.id), // Flow<List<MovieHistoryEntry>>
+                        _movies // Flow<List<Movie>>
+                    ) { historyEntries, allMovies ->
+                        // Process the latest history entries and the latest movie list
+                        Log.d("MovieViewModel", "Combining history (${historyEntries.size} entries) with ${allMovies.size} movies")
+                        historyEntries
+                            // Use distinctBy to show each movie only once in history
+                            .distinctBy { it.movieId }
+                            // Limit to a reasonable number of recent items
+                            .take(15) // Display the last 15 unique movies
+                            // Map each history entry to its corresponding Movie object
+                            .mapNotNull { historyEntry ->
+                                // Find the movie in the main list.
+                                // This relies on the main list containing the history movies.
+                                allMovies.find { it.id == historyEntry.movieId }
+                            }
+                        // The history entries are already ordered by timestamp DESC by the DAO query
+                        // So the resulting list of Movies will also be in recent-first order
+                    }
+                } else {
+                    // If no user is logged in, emit an empty list immediately
+                    emptyFlow()
+                }
+            }
+            // Convert the resulting Flow<List<Movie>> into a StateFlow
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000), // Keep collecting for a bit after observers disappear
+                initialValue = emptyList() // Initial value when no data is available yet
+            )
+}
+

@@ -64,6 +64,7 @@ fun MovieListScreen(
     val searchQuery by viewModel.searchQuery.collectAsState()
     val isSearchActive by viewModel.isSearchActive.collectAsState()
     val filteredMovies by viewModel.filteredMovies.collectAsState()
+    val historyMovies by viewModel.currentUserHistoryMovies.collectAsState()
     
     // Estados para filtrar os filmes
     var selectedGenreId by remember { mutableStateOf<Int?>(null) }
@@ -309,6 +310,7 @@ fun MovieListScreen(
                                 SearchResultItem(
                                     movie = movie,
                                     onMovieClick = { clickedMovieId ->
+                                        viewModel.recordMovieClick(clickedMovieId)
                                         navController.navigate("${AppDestinations.MOVIE_DETAIL}/$clickedMovieId")
                                     }
                                 )
@@ -345,7 +347,40 @@ fun MovieListScreen(
                                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                             )
                         }
-                        
+
+                        // --- Recently Viewed Section ---
+                        if (historyMovies.isNotEmpty()) {
+                            item {
+                                Text(
+                                    text = stringResource(R.string.recently_viewed), // Add this string resource
+                                    color = Color.White,
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(16.dp)
+                                )
+                            }
+                            item {
+                                LazyRow(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(200.dp), // Match MovieCard height
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    contentPadding = PaddingValues(horizontal = 16.dp)
+                                ) {
+                                    // Display MovieCards for history movies
+                                    items(historyMovies, key = { it.id }) { movie ->
+                                        MovieCard(
+                                            movie = movie, // Use the Movie object from history
+                                            onMovieClick = { clickedMovieId ->
+                                                viewModel.recordMovieClick(clickedMovieId) // Record click again (optional, but ensures latest timestamp if already in history)
+                                                navController.navigate("${AppDestinations.MOVIE_DETAIL}/$clickedMovieId")
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
                         // Categorias
                         item {
                             LazyRow(
@@ -375,6 +410,7 @@ fun MovieListScreen(
                                 FeaturedMovie(
                                     movie = featuredMovie,
                                     onMovieClick = { clickedMovieId ->
+                                        viewModel.recordMovieClick(clickedMovieId)
                                         navController.navigate("${AppDestinations.MOVIE_DETAIL}/$clickedMovieId")
                                     }
                                 )
@@ -415,6 +451,7 @@ fun MovieListScreen(
                                             MovieCard(
                                                 movie = movie,
                                                 onMovieClick = { clickedMovieId ->
+                                                    viewModel.recordMovieClick(clickedMovieId)
                                                     navController.navigate("${AppDestinations.MOVIE_DETAIL}/$clickedMovieId")
                                                 }
                                             )
@@ -446,6 +483,7 @@ fun MovieListScreen(
                                         MovieCard(
                                             movie = movie,
                                             onMovieClick = { clickedMovieId ->
+                                                viewModel.recordMovieClick(clickedMovieId)
                                                 navController.navigate("${AppDestinations.MOVIE_DETAIL}/$clickedMovieId")
                                             }
                                         )
@@ -479,6 +517,7 @@ fun MovieListScreen(
                                                 MovieCard(
                                                     movie = movie,
                                                     onMovieClick = { clickedMovieId ->
+                                                        viewModel.recordMovieClick(clickedMovieId)
                                                         navController.navigate("${AppDestinations.MOVIE_DETAIL}/$clickedMovieId")
                                                     }
                                                 )
