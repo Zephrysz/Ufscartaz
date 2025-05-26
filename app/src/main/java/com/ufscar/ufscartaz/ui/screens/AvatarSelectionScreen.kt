@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn // Import LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -26,6 +27,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.ufscar.ufscartaz.R
+import com.ufscar.ufscartaz.data.remote.AvatarCategory // Import AvatarCategory
 import com.ufscar.ufscartaz.navigation.AppDestinations
 import com.ufscar.ufscartaz.ui.viewmodels.AvatarViewModel
 
@@ -34,7 +36,9 @@ fun AvatarSelectionScreen(
     navController: NavHostController,
     viewModel: AvatarViewModel = viewModel()
 ) {
-    val avatarList by viewModel.avatarList.collectAsState()
+    // Observe states from ViewModel
+    // Changed to observe the categorized list
+    val categorizedAvatarList by viewModel.categorizedAvatarList.collectAsState()
     val isLoadingAvatars by viewModel.isLoadingAvatars.collectAsState()
     val fetchAvatarsError by viewModel.fetchAvatarsError.collectAsState()
     val selectedAvatarPexelsId by viewModel.selectedAvatarPexelsId.collectAsState()
@@ -53,7 +57,7 @@ fun AvatarSelectionScreen(
                 // Error message is already in the state
             }
             else -> {
-                // Do nothing for Idle or Loading
+                // Do nothing
             }
         }
     }
@@ -65,7 +69,7 @@ fun AvatarSelectionScreen(
     ) {
         Column(
             modifier = Modifier
-                .fillMaxSize() // Use fillMaxSize for Column to manage space
+                .fillMaxSize()
                 .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -73,31 +77,29 @@ fun AvatarSelectionScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 16.dp, bottom = 32.dp), // Adjusted padding
+                    .padding(top = 16.dp, bottom = 32.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Spacer to push Title slightly right or allow Pular space
-                Spacer(modifier = Modifier.width(48.dp)) // Give some space on the left
+                Spacer(modifier = Modifier.width(48.dp))
 
-                // Title (Adjust weight/modifier if you want it truly centered relative to screen)
                 Text(
                     text = stringResource(R.string.title_choose_avatar),
                     color = Color.White,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.weight(1f) // Title takes available space
+                    modifier = Modifier.weight(1f)
                 )
 
                 // Skip Button (Text Button in top right)
                 TextButton(
                     onClick = { navController.navigate(AppDestinations.MOVIES) },
-                    enabled = saveAvatarState != AvatarViewModel.SaveAvatarState.Loading // Disable while saving
+                    enabled = saveAvatarState != AvatarViewModel.SaveAvatarState.Loading
                 ) {
                     Text(
-                        text = stringResource(R.string.button_skip), // Assuming R.string.button_skip is "Pular"
-                        color = Color.White, // Or a subtle gray
+                        text = stringResource(R.string.button_skip), // Assuming "Pular"
+                        color = Color.White,
                         fontSize = 16.sp
                     )
                 }
@@ -115,131 +117,125 @@ fun AvatarSelectionScreen(
                 )
             }
 
-            // --- Avatar Options Area ---
-            // Use a Column to stack the LazyRows and other potential elements
-            Column(
-                modifier = Modifier.weight(1f) // This Column takes up remaining space
-            ) {
-                if (isLoadingAvatars) {
-                    // Loading indicator while fetching avatars
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(48.dp),
-                            color = Color.White
-                        )
-                    }
-                } else if (fetchAvatarsError != null && avatarList.isEmpty()) {
-                    // Display fetch error if avatars couldn't be loaded
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = fetchAvatarsError ?: "Failed to load avatars.",
-                            color = Color.Red,
-                            fontSize = 16.sp,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(16.dp)
-                        )
-                    }
+            // --- Avatar Categories Area ---
+            // Use LazyColumn to stack the category rows vertically and efficiently
+            if (isLoadingAvatars) {
+                // Loading indicator while fetching avatars
+                Box(
+                    modifier = Modifier.weight(1f).fillMaxWidth(), // Fill remaining space
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(48.dp),
+                        color = Color.White
+                    )
                 }
-                else if (avatarList.isNotEmpty()) {
-                    // Display the list of avatars in multiple rows
-                    // Chunk the list, e.g., 4 items per row
-                    val avatarsPerRow = 4
-                    val chunkedAvatarList = avatarList.chunked(avatarsPerRow)
+            } else if (fetchAvatarsError != null && categorizedAvatarList.isEmpty()) {
+                // Display fetch error if avatars couldn't be loaded for any category
+                Box(
+                    modifier = Modifier.weight(1f).fillMaxWidth(), // Fill remaining space
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = fetchAvatarsError ?: "Failed to load avatars.",
+                        color = Color.Red,
+                        fontSize = 16.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+            }
+            else if (categorizedAvatarList.isNotEmpty()) {
+                // Display the list of avatar categories using LazyColumn
+                LazyColumn(
+                    modifier = Modifier.weight(1f).fillMaxWidth(), // LazyColumn takes remaining space
+                    verticalArrangement = Arrangement.spacedBy(16.dp) // Space between categories
+                ) {
+                    items(categorizedAvatarList, key = { it.label }) { category ->
+                        // Display the category label
+                        Text(
+                            text = category.label, // Use the label from the category
+                            color = Color.LightGray,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold, // Maybe bold the label
+                            modifier = Modifier.padding(start = 8.dp) // Align Label
+                        )
+                        // Display the avatars for this category in a LazyRow
+                        LazyRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp), // Space between avatars
+                            verticalAlignment = Alignment.CenterVertically,
+                            contentPadding = PaddingValues(horizontal = 8.dp) // Add horizontal padding
+                        ) {
+                            items(category.avatars, key = { it.pexelsId }) { avatar ->
+                                val isSelected = avatar.pexelsId == selectedAvatarPexelsId
 
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(16.dp) // Space between rows
-                    ) {
-                        chunkedAvatarList.forEachIndexed { index, rowAvatars ->
-                            // Add the "Label" text above each row as seen in the image
-                            Text(
-                                text = "Label", // Hardcoded "Label" to match image
-                                color = Color.LightGray, // Adjust color
-                                fontSize = 14.sp,
-                                modifier = Modifier.padding(start = 8.dp) // Align Label
-                            )
-                            LazyRow(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp), // Space between avatars
-                                verticalAlignment = Alignment.CenterVertically,
-                                contentPadding = PaddingValues(horizontal = 8.dp) // Add horizontal padding for edges
-                            ) {
-                                items(rowAvatars, key = { it.pexelsId }) { avatar ->
-                                    val isSelected = avatar.pexelsId == selectedAvatarPexelsId
-
-                                    AsyncImage(
-                                        model = avatar.url,
-                                        contentDescription = "Avatar option ${avatar.pexelsId}",
-                                        modifier = Modifier
-                                            .size(72.dp) // Size of avatar images
-                                            .clip(CircleShape)
-                                            .border(
-                                                width = if (isSelected) 3.dp else 1.dp,
-                                                color = if (isSelected) Color.Red else Color.Gray,
-                                                shape = CircleShape
-                                            )
-                                            .clickable {
-                                                viewModel.selectAvatar(avatar)
-                                            },
-                                        contentScale = ContentScale.Crop
-                                    )
-                                }
+                                AsyncImage(
+                                    model = avatar.url,
+                                    contentDescription = "Avatar option ${avatar.pexelsId}",
+                                    modifier = Modifier
+                                        .size(72.dp)
+                                        .clip(CircleShape)
+                                        .border(
+                                            width = if (isSelected) 3.dp else 1.dp,
+                                            color = if (isSelected) Color.Red else Color.Gray,
+                                            shape = CircleShape
+                                        )
+                                        .clickable {
+                                            viewModel.selectAvatar(avatar)
+                                        },
+                                    contentScale = ContentScale.Crop
+                                )
                             }
                         }
                     }
-                } else if (fetchAvatarsError == null) {
-                    // Case where list is empty and no explicit error occurred (maybe query returned no results)
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "No avatars found. Try again later.", // Add to strings.xml
-                            color = Color.Gray,
-                            fontSize = 16.sp,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(16.dp)
-                        )
-                    }
+                }
+            } else if (fetchAvatarsError == null) {
+                // Case where list is empty and no explicit error occurred (maybe queries returned no results)
+                Box(
+                    modifier = Modifier.weight(1f).fillMaxWidth(), // Fill remaining space
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "No avatars found across all categories.", // More specific empty message
+                        color = Color.Gray,
+                        fontSize = 16.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(16.dp)
+                    )
                 }
             }
-            // --- End Avatar Options Area ---
+            // --- End Avatar Categories Area ---
 
 
-            // Optional: Deselect button (placed below avatar grid, before Continue)
+            // Optional: Deselect button
             if (selectedAvatarPexelsId != null && saveAvatarState != AvatarViewModel.SaveAvatarState.Loading) {
                 TextButton(
                     onClick = { viewModel.deselectAvatar() },
-                    modifier = Modifier.align(Alignment.CenterHorizontally) // Center the button
-                        .padding(top = 16.dp) // Add space above
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                        .padding(top = 16.dp)
                 ) {
                     Text(
-                        text = "Deselect Avatar", // Add to strings.xml
+                        text = "Deselect Avatar", // Add to strings.xml if not already
                         color = Color.Gray,
                         fontSize = 14.sp
                     )
                 }
             }
 
-            // Continue button (at the bottom)
+            // Continue button
             val isSaving = saveAvatarState == AvatarViewModel.SaveAvatarState.Loading
             Button(
                 onClick = { viewModel.saveAvatar() },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp), // Padding above/below button
+                    .padding(vertical = 8.dp),
                 shape = RoundedCornerShape(4.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Red,
                     disabledContainerColor = Color.Gray
                 ),
-                enabled = !isSaving && selectedAvatarPexelsId != null // Enabled only if an avatar is selected and not saving
+                enabled = !isSaving && selectedAvatarPexelsId != null
             ) {
                 if (isSaving) {
                     CircularProgressIndicator(
@@ -255,15 +251,7 @@ fun AvatarSelectionScreen(
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(16.dp)) // Padding at the very bottom
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun AvatarSelectionScreenPreview() {
-    // For a more representative preview, you might want to create a mock ViewModel
-    // that provides dummy data for avatarList.
-    AvatarSelectionScreen(navController = rememberNavController())
 }

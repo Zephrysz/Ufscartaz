@@ -109,31 +109,28 @@ class UserRepository(
     /**
      * Fetches avatars from Pexels API.
      */
-    suspend fun fetchAvatars(): ApiResponse<List<Avatar>> = withContext(Dispatchers.IO) {
-        val query = "face" // Example search query
-        val perPage = 20 // Number of avatars to fetch
-
+    suspend fun fetchAvatars(query: String, perPage: Int = 20): ApiResponse<List<Avatar>> = withContext(Dispatchers.IO) {
         return@withContext try {
-            // Perform the API call
-            val response = pexelsApiService.searchPhotos(query = query, perPage = perPage, orientation = "square")
+            // Perform the API call with the provided query
+            val response = pexelsApiService.searchPhotos(
+                query = query,
+                perPage = perPage,
+                orientation = "square" // Can keep or make this a parameter too
+            )
 
             if (response.isSuccessful && response.body() != null) {
-                // Map Pexels Photo objects from the successful response body
-                val pexelPhotos = response.body()!!.photos // Access the photos list here
+                val pexelPhotos = response.body()!!.photos
                 val avatars = pexelPhotos.map { photo ->
-                    // Use the 'medium' size for the avatar URL
                     Avatar(pexelsId = photo.id, url = photo.src.medium)
                 }
                 ApiResponse.Success(avatars)
             } else {
-                // Handle non-successful responses (e.g., API key invalid, rate limit)
                 val errorBody = response.errorBody()?.string()
-                val errorMessage = "API Error: ${response.code()} - ${response.message()} ${errorBody ?: ""}"
+                val errorMessage = "API Error for query '$query': ${response.code()} - ${response.message()} ${errorBody ?: ""}"
                 ApiResponse.Error(Exception(errorMessage))
             }
         } catch (e: Exception) {
-            // Handle network errors or other exceptions during the call
-            ApiResponse.Error(e)
+            ApiResponse.Error(e) // Handle network errors or other exceptions
         }
     }
 
