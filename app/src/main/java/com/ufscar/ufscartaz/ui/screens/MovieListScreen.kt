@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -37,12 +38,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
+
 import com.ufscar.ufscartaz.R
 import com.ufscar.ufscartaz.data.model.GenreMap
 import com.ufscar.ufscartaz.data.model.Movie
 import com.ufscar.ufscartaz.data.model.isGenre
 import com.ufscar.ufscartaz.data.model.getGenreNames
 import com.ufscar.ufscartaz.ui.viewmodels.MovieViewModel
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -56,7 +59,7 @@ import kotlinx.coroutines.delay
 fun MovieListScreen(
     navController: NavHostController,
     viewModel: MovieViewModel = viewModel(),
-    userName: String = "Lucas"
+    //userName: String = "Lucas"
 ) {
     val movies by viewModel.movies.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -65,7 +68,12 @@ fun MovieListScreen(
     val isSearchActive by viewModel.isSearchActive.collectAsState()
     val filteredMovies by viewModel.filteredMovies.collectAsState()
     val historyMovies by viewModel.currentUserHistoryMovies.collectAsState()
-    
+
+    // Observa o user atual pelo ViewModel
+    val currentUser by viewModel.currentUser.collectAsState()
+    val currentUserName = currentUser?.name ?: stringResource(R.string.default_user_name)
+    val currentUserAvatarUrl = currentUser?.avatarUrl
+
     // Estados para filtrar os filmes
     var selectedGenreId by remember { mutableStateOf<Int?>(null) }
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -337,15 +345,32 @@ fun MovieListScreen(
                             .fillMaxSize()
                             .padding(top = 8.dp)
                     ) {
-                        // Saudação
+                        // Saudação do usuario e avatar
                         item {
-                            Text(
-                                text = stringResource(R.string.home_greeting, userName),
-                                color = Color.White,
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                            )
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp) // Space between avatar and text
+                            ) {
+                                // Display Avatar using AsyncImage
+                                AsyncImage(
+                                    model = currentUserAvatarUrl, // Use the observed avatar URL
+                                    contentDescription = stringResource(R.string.content_description_user_avatar), // Add this string resource
+                                    modifier = Modifier
+                                        .size(40.dp) // Adjust size as needed
+                                        .clip(CircleShape) // Make it round
+                                        .background(Color.Gray), // Placeholder background if URL is null or loading
+                                    contentScale = ContentScale.Crop // Crop image to fill circle
+                                )
+                                Text(
+                                    text = stringResource(R.string.home_greeting, currentUserName),
+                                    color = Color.White,
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.Bold,
+                                )
+                            }
                         }
 
                         // --- Recently Viewed Section ---

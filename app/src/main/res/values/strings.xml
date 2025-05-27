@@ -27,6 +27,8 @@
     <!-- Home Screen -->
     <string name="recently_viewed">Vistos Recentemente</string>
     <string name="home_greeting">Para você, %s</string> <!-- %s will be replaced by username -->
+    <string name="default_user_name">Usuário</string>
+    <string name="content_description_user_avatar">Avatar do usuário</string>
     <string name="category_documentaries">Documentários</string>
     <string name="category_comedy">Comédia</string>
     <string name="category_drama">Drama</string>

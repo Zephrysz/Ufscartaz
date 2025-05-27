@@ -5,12 +5,15 @@ import androidx.lifecycle.viewModelScope
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel // para ter acesso ao banco de dados, instancia local, contexto, etc
+
 import com.ufscar.ufscartaz.data.UserSession
+import com.ufscar.ufscartaz.data.model.User
 import com.ufscar.ufscartaz.data.local.AppDatabase
 import com.ufscar.ufscartaz.data.model.Movie
 import com.ufscar.ufscartaz.data.model.MovieHistoryEntry
 import com.ufscar.ufscartaz.data.repository.MovieRepository
 import com.ufscar.ufscartaz.data.repository.MovieHistoryRepository
+import com.ufscar.ufscartaz.di.NetworkModule
 
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
@@ -39,7 +42,9 @@ class MovieViewModel(application: Application) : AndroidViewModel(application) {
     
     private val _isSearchActive = MutableStateFlow(false)
     val isSearchActive: StateFlow<Boolean> = _isSearchActive.asStateFlow()
-    
+
+    val currentUser: StateFlow<User?> = UserSession.currentUser
+
     init {
         // Initialize the new history repository using the database instance from Application context
         val appDatabase = AppDatabase.getDatabase(application)
