@@ -16,7 +16,7 @@ Pedro Vinícius Guandalini Vicente - 812124
 
 ## Execução do Aplicativo
 
-Para que o aplicativo funcione corretamente é necessário incluir uma key do Pexels no arquivo local.properties para que as imagens dos avatares de registro funcionem corretamente. \
+Para que o aplicativo funcione corretamente é necessário incluir uma key do Pexels no arquivo `local.properties` para que as imagens dos avatares de registro funcionem corretamente. \
 Para isso, basta gerar a sua chave no site oficial do Pexels (https://www.pexels.com/api/) e incluí-la conforme exemplo abaixo:
 ````
 pexelsApiKey=SUA_KEY_DO_PEXELS

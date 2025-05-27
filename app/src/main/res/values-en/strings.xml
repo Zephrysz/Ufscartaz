@@ -25,13 +25,40 @@
     <string name="avatar_selection_placeholder">Avatar selection options would go here</string>
 
     <!-- Home Screen -->
+    <string name="recently_viewed">Recently Viewed</string>
     <string name="home_greeting">For you, %s</string>
     <string name="category_documentaries">Documentaries</string>
     <string name="category_comedy">Comedy</string>
     <string name="category_drama">Drama</string>
+    <string name="category_action">Action</string>
+    <string name="category_adventure">Adventure</string>
+    <string name="category_horror">Horror</string>
+    <string name="category_scifi">Science Fiction</string>
+    <string name="category_romance">Romance</string>
+    <string name="category_animation">Animation</string>
     <string name="explore_movies">Explore Movies</string>
     
     <!-- Movie List Screen -->
     <string name="movies_title">Movies</string>
     <string name="movie_list_content">Movie List</string>
+    <string name="all_movies">All Movies</string>
+    <string name="popular_movies">Popular Movies</string>
+    <string name="search_hint">Search Movies...</string>
+    <string name="search_placeholder">What do you want to watch?</string>
+    <string name="no_movies_found">No Movies Found</string>
+    <string name="try_again">Try again</string>
+    <string name="unknown_error">Unknown Error</string>
+    <string name="no_movies_in_category">No movies found in this category</string>
+    <string name="movies">Movies</string>
+    <string name="search_results_for">Results for: \"%s\"</string>
+    <string name="search_no_results">No movies found for: \"%s\"</string>
+    <string name="search_type_to_search">Type to search movies</string>
+
+    <!-- Movie Description Screen -->
+    <string name="loading">Loading...</string>
+    <string name="back">Back</string>
+    <string name="movie_not_found">Movie not found.</string>
+    <string name="rating">Rating: %.1f</string>
+    <string name="overview_title">Overview</string>
+    <string name="no_overview_available">No overview available.</string>
 </resources>
