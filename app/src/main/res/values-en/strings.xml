@@ -47,6 +47,8 @@
     <string name="popular_movies">Popular Movies</string>
     <string name="search_hint">Search Movies...</string>
     <string name="search_placeholder">What do you want to watch?</string>
+    <string name="search_button">Search</string>
+    <string name="clear_button">Clear</string>
     <string name="no_movies_found">No Movies Found</string>
     <string name="try_again">Try again</string>
     <string name="unknown_error">Unknown Error</string>

@@ -47,6 +47,8 @@
     <string name="popular_movies">Filmes Populares</string>
     <string name="search_hint">Buscar filmes...</string>
     <string name="search_placeholder">O que você quer assistir?</string>
+    <string name="search_button">Buscar</string>
+    <string name="clear_button">Limpar</string>
     <string name="no_movies_found">Nenhum filme encontrado</string>
     <string name="try_again">Tentar novamente</string>
     <string name="unknown_error">Erro desconhecido</string>

@@ -138,7 +138,7 @@ fun MovieListScreen(
                         }) {
                             Icon(
                                 imageVector = Icons.Default.Search,
-                                contentDescription = "Buscar",
+                                contentDescription = stringResource(R.string.search_button),
                                 tint = Color.White,
                                 modifier = Modifier.size(24.dp)
                             )
@@ -193,7 +193,7 @@ fun MovieListScreen(
                                     IconButton(onClick = { viewModel.clearSearch() }) {
                                         Icon(
                                             imageVector = Icons.Default.Clear,
-                                            contentDescription = "Limpar",
+                                            contentDescription = stringResource(R.string.clear_button),
                                             tint = Color.White
                                         )
                                     }
