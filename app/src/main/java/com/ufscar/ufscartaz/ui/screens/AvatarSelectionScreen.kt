@@ -36,15 +36,13 @@ fun AvatarSelectionScreen(
     navController: NavHostController,
     viewModel: AvatarViewModel = viewModel()
 ) {
-    // Observe states from ViewModel
-    // Changed to observe the categorized list
+
     val categorizedAvatarList by viewModel.categorizedAvatarList.collectAsState()
     val isLoadingAvatars by viewModel.isLoadingAvatars.collectAsState()
     val fetchAvatarsError by viewModel.fetchAvatarsError.collectAsState()
     val selectedAvatarPexelsId by viewModel.selectedAvatarPexelsId.collectAsState()
     val saveAvatarState by viewModel.saveAvatarState.collectAsState()
 
-    // Handle save avatar state changes
     LaunchedEffect(saveAvatarState) {
         when (saveAvatarState) {
             is AvatarViewModel.SaveAvatarState.Success -> {

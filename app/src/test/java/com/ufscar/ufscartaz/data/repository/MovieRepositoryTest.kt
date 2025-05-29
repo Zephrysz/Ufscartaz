@@ -19,24 +19,18 @@ import kotlin.test.*
 @ExperimentalCoroutinesApi
 class MovieRepositoryTest {
 
-    // Mocks necessários
     @Mock
     private lateinit var mockApiService: MovieApiService
 
-    // A instância do repositório que será testada
     private lateinit var movieRepository: MovieRepository
 
-    // Configuração antes de cada teste
     @Before
     fun setup() {
-        // Inicializa os mocks anotados com @Mock
         MockitoAnnotations.openMocks(this)
-        // Instancia o repositório usando reflexão para injetar o mock
         movieRepository = MovieRepository()
 
     }
 
-    // --- Helper function para criar filmes fictícios ---
     private fun createDummyMovies(count: Int): List<Movie> {
         return (1..count).map { i ->
             Movie(
@@ -49,19 +43,14 @@ class MovieRepositoryTest {
         }
     }
 
-    // --- Teste de integração: verifica se o repository não retorna null ---
     @Test
     fun `getPopularMovies returns non-null list`() {
         runTest {
-            // Chama o método do repositório
             val result = movieRepository.getPopularMovies()
 
-            // Verifica se o resultado não é nulo
             assertNotNull(result, "O resultado não deve ser nulo")
             assertTrue(result is List<Movie>, "O resultado deve ser uma lista de filmes")
             
-            // Se houver conexão com a internet, deve retornar filmes
-            // Se não houver, retorna lista vazia (conforme implementação atual)
             println("Número de filmes retornados: ${result.size}")
         }
     }
@@ -93,12 +82,8 @@ class MovieRepositoryTest {
     @Test
     fun `getPopularMovies handles exceptions gracefully`() {
         runTest {
-            // Este teste verifica o comportamento atual do MovieRepository
-            // que retorna lista vazia em caso de exceção
-            // Chama o método do repositório
             val result = movieRepository.getPopularMovies()
 
-            // Verifica se o resultado é uma lista (pode ser vazia)
             assertNotNull(result, "O resultado deve ser uma lista não-nula")
             assertTrue(result is List<Movie>, "O resultado deve ser uma lista de filmes")
         }

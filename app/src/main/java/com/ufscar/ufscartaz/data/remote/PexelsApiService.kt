@@ -9,8 +9,7 @@ interface PexelsApiService {
     @GET("search")
     suspend fun searchPhotos(
         @Query("query") query: String,
-        @Query("per_page") perPage: Int = 15, // Adjust per_page as needed
-        @Query("orientation") orientation: String = "square" // Or "portrait"
-        // No need for @Header("Authorization") here, we'll use an Interceptor
+        @Query("per_page") perPage: Int = 15,
+        @Query("orientation") orientation: String = "square"
     ): Response<PexelsSearchResponse>
 }

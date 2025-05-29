@@ -19,9 +19,7 @@ data class Movie(
     val vote_average: Double = 0.0
 )
 
-// Mapeamento dos IDs de gêneros para nomes (versão internacionalizada)
 object GenreMap {
-    // Versão antiga (deprecated) - mantida para compatibilidade
     @Deprecated("Use getLocalizedGenreMap(context) ou getLocalizedGenreMapComposable() instead")
     val genreMap = mapOf(
         28 to "Ação",
@@ -45,7 +43,6 @@ object GenreMap {
         37 to "Faroeste"
     )
     
-    // Versão internacionalizada para uso com Context
     fun getLocalizedGenreMap(context: Context): Map<Int, String> {
         return mapOf(
             28 to context.getString(R.string.category_action),
@@ -70,7 +67,6 @@ object GenreMap {
         )
     }
     
-    // Versão internacionalizada para uso em Composables
     @Composable
     fun getLocalizedGenreMapComposable(): Map<Int, String> {
         return mapOf(
@@ -96,7 +92,6 @@ object GenreMap {
         )
     }
     
-    // Função para obter nome de gênero específico em Composable
     @Composable
     fun getGenreName(genreId: Int): String {
         return when (genreId) {
@@ -124,25 +119,21 @@ object GenreMap {
     }
 }
 
-// Extensão para verificar se um filme pertence a um gênero
 fun Movie.isGenre(genreId: Int): Boolean {
     return genre_ids.contains(genreId)
 }
 
-// Extensão para obter os nomes dos gêneros de um filme (versão antiga)
 @Deprecated("Use getGenreNamesComposable() in Composables instead")
 fun Movie.getGenreNames(): List<String> {
     return genre_ids.mapNotNull { GenreMap.genreMap[it] }
 }
 
-// Extensão para obter os nomes dos gêneros de um filme (versão internacionalizada para Composables)
 @Composable
 fun Movie.getGenreNamesComposable(): List<String> {
     val localizedMap = GenreMap.getLocalizedGenreMapComposable()
     return genre_ids.mapNotNull { localizedMap[it] }
 }
 
-// Extensão para obter os nomes dos gêneros de um filme (versão internacionalizada com Context)
 fun Movie.getGenreNames(context: Context): List<String> {
     val localizedMap = GenreMap.getLocalizedGenreMap(context)
     return genre_ids.mapNotNull { localizedMap[it] }

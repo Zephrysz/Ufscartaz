@@ -28,14 +28,13 @@ class MovieHistoryDaoTest {
 
         dao = db.movieHistoryDao()
 
-        // Inserir um usuário de teste (necessário por causa da foreign key)
         runBlocking {
             db.userDao().insertUser(
                 User(
                     id = 1L,
                     name = "Teste",
                     email = "teste@ufscar.br",
-                    password = "123456", // senha fictícia
+                    password = "123456",
                     avatarPexelsId = null,
                     avatarUrl = null
                 )
@@ -53,7 +52,6 @@ class MovieHistoryDaoTest {
     fun insertAndRetrieveHistoryEntriesOrderedByTimestamp() = runBlocking {
         val userId = 1L
 
-        // Inserir 3 entradas com timestamps personalizados
         val entries = listOf(
             MovieHistoryEntry(userId = userId, movieId = 100, timestamp = 1000),
             MovieHistoryEntry(userId = userId, movieId = 101, timestamp = 2000),
@@ -65,9 +63,9 @@ class MovieHistoryDaoTest {
         val history = dao.getHistoryForUser(userId).first()
 
         Assert.assertEquals(3, history.size)
-        Assert.assertEquals(102, history[0].movieId) // mais recente
+        Assert.assertEquals(102, history[0].movieId)
         Assert.assertEquals(101, history[1].movieId)
-        Assert.assertEquals(100, history[2].movieId) // mais antigo
+        Assert.assertEquals(100, history[2].movieId)
     }
 
     @Test

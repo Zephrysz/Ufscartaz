@@ -4,17 +4,11 @@ import kotlinx.coroutines.delay
 import java.util.UUID
 import kotlin.random.Random
 
-/**
- * Fake implementation of the API service
- */
+
 class FakeApiService : ApiService {
     
-    // In-memory storage of registered users for the fake implementation
     private val registeredUsers = mutableMapOf<String, Pair<RegisterRequest, Long>>()
-    
-    /**
-     * Simulate a persistent API between app launches
-     */
+
     fun preloadUser(email: String, name: String, password: String, userId: Long) {
         if (!registeredUsers.containsKey(email)) {
             val request = RegisterRequest(name, email, password)

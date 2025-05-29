@@ -46,7 +46,6 @@ class MovieViewModel(application: Application) : AndroidViewModel(application) {
     val currentUser: StateFlow<User?> = UserSession.currentUser
 
     init {
-        // Initialize the new history repository using the database instance from Application context
         val appDatabase = AppDatabase.getDatabase(application)
         val movieHistoryDao = appDatabase.movieHistoryDao() // Get the new DAO
         movieHistoryRepository = MovieHistoryRepository(movieHistoryDao) // Initialize the repository
@@ -58,7 +57,6 @@ class MovieViewModel(application: Application) : AndroidViewModel(application) {
     @OptIn(FlowPreview::class)
     private fun setupSearchDebounce() {
         viewModelScope.launch {
-            // Debounce a pesquisa para evitar muitas atualizações rápidas
             _searchQuery
                 .debounce(300) // 300ms de atraso para melhor desempenho
                 .collect { query ->
@@ -80,7 +78,6 @@ class MovieViewModel(application: Application) : AndroidViewModel(application) {
                     _error.value = "Não foram encontrados filmes. Verifique sua conexão."
                 } else {
                     _movies.value = movieList
-                    // Se a pesquisa estiver ativa, também atualiza os filmes filtrados
                     if (_isSearchActive.value) {
                         updateFilteredMovies()
                     }
@@ -101,11 +98,9 @@ class MovieViewModel(application: Application) : AndroidViewModel(application) {
         _searchQuery.value = query
         _isSearchActive.value = query.isNotEmpty()
         
-        // Se a query estiver vazia, limpa os resultados imediatamente
         if (query.isEmpty()) {
             _filteredMovies.value = emptyList()
         }
-        // Caso contrário, o debounce cuidará da atualização
     }
     
     fun clearSearch() {
@@ -128,24 +123,20 @@ class MovieViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
         
-        // Pesquisa por título com prioridade (match exato)
         val exactMatches = _movies.value.filter { movie ->
             movie.title.lowercase() == query
         }
         
-        // Pesquisa por título com correspondência parcial
         val titleMatches = _movies.value.filter { movie ->
             movie.title.lowercase().contains(query) && !exactMatches.contains(movie)
         }
         
-        // Pesquisa por descrição se necessário
         val descriptionMatches = _movies.value.filter { movie ->
             movie.overview.lowercase().contains(query) && 
             !exactMatches.contains(movie) && 
             !titleMatches.contains(movie)
         }
         
-        // Combina os resultados com prioridade para títulos
         _filteredMovies.value = exactMatches + titleMatches + descriptionMatches
     }
     
@@ -155,65 +146,43 @@ class MovieViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    /**
-     * Records a movie click in the history for the current user.
-     */
     fun recordMovieClick(movieId: Int) {
-        // Get the current user's ID from the UserSession singleton
         val userId = UserSession.currentUser.value?.id
 
         if (userId != null) {
-            // Launch a coroutine to perform the database insert
             viewModelScope.launch {
                 try {
                     movieHistoryRepository.addMovieToHistory(userId, movieId)
                     Log.d("MovieViewModel", "Recorded click for movie ID $movieId for user ID $userId")
                 } catch (e: Exception) {
                     Log.e("MovieViewModel", "Error recording movie click history", e)
-                    // Optionally, update an error state or show a Toast
                 }
             }
         } else {
-            // This case shouldn't happen if the user is required to be logged in
             Log.w("MovieViewModel", "Attempted to record movie click without a logged-in user.")
         }
     }
 
-    /**
-     * Exposes the history of movies for the current user as a list of Movie objects.
-     * Combines the history entries with the full movie list.
-     */
     val currentUserHistoryMovies: StateFlow<List<Movie>> =
         UserSession.currentUser
             .flatMapLatest { user ->
                 if (user != null) {
-                    // Combine the user's history entries flow with the main movies list flow
                     combine(
                         movieHistoryRepository.getUserHistory(user.id), // Flow<List<MovieHistoryEntry>>
                         _movies // Flow<List<Movie>>
                     ) { historyEntries, allMovies ->
-                        // Process the latest history entries and the latest movie list
                         Log.d("MovieViewModel", "Combining history (${historyEntries.size} entries) with ${allMovies.size} movies")
                         historyEntries
-                            // Use distinctBy to show each movie only once in history
                             .distinctBy { it.movieId }
-                            // Limit to a reasonable number of recent items
                             .take(15) // Display the last 15 unique movies
-                            // Map each history entry to its corresponding Movie object
                             .mapNotNull { historyEntry ->
-                                // Find the movie in the main list.
-                                // This relies on the main list containing the history movies.
                                 allMovies.find { it.id == historyEntry.movieId }
                             }
-                        // The history entries are already ordered by timestamp DESC by the DAO query
-                        // So the resulting list of Movies will also be in recent-first order
                     }
                 } else {
-                    // If no user is logged in, emit an empty list immediately
                     emptyFlow()
                 }
             }
-            // Convert the resulting Flow<List<Movie>> into a StateFlow
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000), // Keep collecting for a bit after observers disappear

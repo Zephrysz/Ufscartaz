@@ -56,15 +56,11 @@ fun AppNavHost(navController: NavHostController) {
             route = AppDestinations.MOVIE_DETAIL_ROUTE,
             arguments = listOf(navArgument(AppDestinations.MOVIE_ID_ARG) { type = NavType.IntType })
         ) { backStackEntry ->
-            // Extract the movie ID from the arguments
             val movieId = backStackEntry.arguments?.getInt(AppDestinations.MOVIE_ID_ARG)
-            // Ensure movieId is not null (it shouldn't be with IntType but defensive)
             if (movieId != null) {
                 MovieDetailScreen(navController = navController, movieId = movieId)
             } else {
-                // Handle the error case, maybe navigate back or show an error message
-                // Log.e("AppNavHost", "Movie ID argument is missing!")
-                navController.popBackStack() // Simple fallback: go back
+                navController.popBackStack()
             }
         }
     }

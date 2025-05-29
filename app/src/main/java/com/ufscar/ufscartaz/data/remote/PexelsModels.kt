@@ -2,7 +2,6 @@ package com.ufscar.ufscartaz.data.remote
 
 import com.google.gson.annotations.SerializedName
 
-// Represents the overall response from the Pexels search API (remains the same)
 data class PexelsSearchResponse(
     val photos: List<Photo>,
     @SerializedName("total_results") val totalResults: Int,
@@ -11,7 +10,6 @@ data class PexelsSearchResponse(
     @SerializedName("next_page") val nextPage: String?
 )
 
-// Represents a single photo returned by the API (remains the same)
 data class Photo(
     val id: Int,
     val width: Int,
@@ -26,7 +24,6 @@ data class Photo(
     val alt: String?
 )
 
-// Represents the different source URLs for a photo (remains the same)
 data class PhotoSource(
     val original: String,
     val large2x: String,
@@ -38,20 +35,17 @@ data class PhotoSource(
     val tiny: String
 )
 
-// Simple data class for a single avatar item in the UI (remains the same)
 data class Avatar(
     val pexelsId: Int,
     val url: String
 )
 
-// Data class to represent a category *configuration* (label and query)
 data class AvatarCategoryConfig(
-    val label: String, // The label to display
-    val query: String // The Pexels search query for this category
+    val label: String,
+    val query: String
 )
 
-// Data class to represent a category *result* (label and fetched avatars) - Simplified
 data class AvatarCategory(
-    val label: String, // The label to display
-    val avatars: List<Avatar> // The fetched avatars for this category
+    val label: String,
+    val avatars: List<Avatar>
 )

@@ -13,9 +13,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-/**
- * ViewModel for authentication (login/registration)
- */
 class AuthViewModel(application: Application) : AndroidViewModel(application) {
     private val userRepository: UserRepository
 
@@ -32,9 +29,6 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         userRepository = UserRepository(userDao, apiService, pexelsApiService)
     }
 
-    /**
-     * Login with email and password
-     */
     fun login(email: String, password: String) {
         _loginState.value = LoginState.Loading
 
@@ -50,10 +44,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
-    
-    /**
-     * Register with name, email, and password
-     */
+
     fun register(name: String, email: String, password: String) {
         _registerState.value = RegisterState.Loading
 
@@ -69,41 +60,26 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
-    
-    /**
-     * Reset login state
-     */
+
     fun resetLoginState() {
         _loginState.value = LoginState.Idle
     }
-    
-    /**
-     * Reset register state
-     */
+
     fun resetRegisterState() {
         _registerState.value = RegisterState.Idle
     }
-    
-    /**
-     * Logout the current user
-     */
+
     fun logout() {
         UserSession.logout()
     }
-    
-    /**
-     * Login state
-     */
+
     sealed class LoginState {
         object Idle : LoginState()
         object Loading : LoginState()
         object Success : LoginState()
         data class Error(val message: String) : LoginState()
     }
-    
-    /**
-     * Register state
-     */
+
     sealed class RegisterState {
         object Idle : RegisterState()
         object Loading : RegisterState()

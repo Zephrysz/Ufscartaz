@@ -33,7 +33,6 @@ class MovieApiServiceTest {
 
     @Test
     fun `getPopularMovies returns movie list with valid data`() = runBlocking {
-        // Dado: resposta mockada da API
         val mockResponse = MockResponse()
         mockResponse.setBody("""
             {
@@ -53,10 +52,8 @@ class MovieApiServiceTest {
         mockResponse.setResponseCode(200)
         mockWebServer.enqueue(mockResponse)
 
-        // Quando: chamada à API
         val response: MovieResponse = api.getPopularMovies()
 
-        // Então: valida os dados
         assertThat(response.results).isNotEmpty()
         val movie = response.results.first()
         assertThat(movie.title).isEqualTo("Filme Teste")
