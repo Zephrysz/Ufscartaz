@@ -84,6 +84,7 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
     
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
@@ -95,7 +96,8 @@ dependencies {
     
     // Coil for image loading
     implementation("io.coil-kt:coil-compose:2.5.0")
-    
+
+    // Android/Instrumented testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -109,4 +111,7 @@ dependencies {
     testImplementation("org.mockito:mockito-core:5.0.0")
     testImplementation("androidx.arch.core:core-testing:2.2.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:1.9.23")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
+    testImplementation("com.google.truth:truth:1.4.0")
 }
