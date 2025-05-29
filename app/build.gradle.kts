@@ -114,4 +114,6 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.9.23")
     testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
     testImplementation("com.google.truth:truth:1.4.0")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test:core:1.5.0")
 }
