@@ -44,6 +44,7 @@ import com.ufscar.ufscartaz.data.model.GenreMap
 import com.ufscar.ufscartaz.data.model.Movie
 import com.ufscar.ufscartaz.data.model.isGenre
 import com.ufscar.ufscartaz.data.model.getGenreNames
+import com.ufscar.ufscartaz.data.model.getGenreNamesComposable
 import com.ufscar.ufscartaz.ui.viewmodels.MovieViewModel
 
 import androidx.compose.animation.AnimatedVisibility
@@ -447,7 +448,7 @@ fun MovieListScreen(
                             // Mostra apenas filmes filtrados
                             item {
                                 Text(
-                                    text = GenreMap.genreMap[selectedGenreId] ?: stringResource(R.string.movies),
+                                    text = GenreMap.getGenreName(selectedGenreId!!),
                                     color = Color.White,
                                     fontSize = 20.sp,
                                     fontWeight = FontWeight.Bold,
@@ -630,7 +631,7 @@ fun FeaturedMovie(movie: Movie, onMovieClick: (Int) -> Unit) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 // Gêneros do filme
-                val genres = movie.getGenreNames().take(3)
+                val genres = movie.getGenreNamesComposable().take(3)
                 
                 genres.forEachIndexed { index, genre ->
                     if (index > 0) {
@@ -733,7 +734,7 @@ fun SearchResultItem(movie: Movie, onMovieClick: (Int) -> Unit) {
                     modifier = Modifier.padding(vertical = 4.dp),
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    val genres = movie.getGenreNames().take(3)
+                    val genres = movie.getGenreNamesComposable().take(3)
                     genres.forEachIndexed { index, genre ->
                         if (index > 0) {
                             Text(

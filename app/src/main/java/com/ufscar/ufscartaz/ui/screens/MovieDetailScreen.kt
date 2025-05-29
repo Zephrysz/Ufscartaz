@@ -28,7 +28,7 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.ufscar.ufscartaz.R
 import com.ufscar.ufscartaz.data.model.Movie
-import com.ufscar.ufscartaz.data.model.getGenreNames
+import com.ufscar.ufscartaz.data.model.getGenreNamesComposable
 import com.ufscar.ufscartaz.ui.viewmodels.MovieViewModel
 import android.util.Log // Import Log
 
@@ -176,7 +176,7 @@ fun MovieDetailScreen(
                                 modifier = Modifier.padding(bottom = 8.dp),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                val genres = movie.getGenreNames()
+                                val genres = movie.getGenreNamesComposable()
                                 genres.forEachIndexed { index, genre ->
                                     if (index > 0) {
                                         Text(
